@@ -976,6 +976,11 @@ namespace TvPlugin
         // Set a default logo indicating the watched status
         string SmallThumb = aRecording.TimesWatched > 0 ? strDefaultSeenIcon : strDefaultUnseenIcon;
 
+        if (!item.IsFolder)
+        {
+          item.Label3 = aRecording.TimesWatched.ToString();
+        }
+
         // Get the channel logo for the small icons
         string StationLogo = Utils.GetCoverArt(Thumbs.TVChannel, strChannelName);
         if (Utils.FileExistsInCache(StationLogo))
@@ -1582,7 +1587,38 @@ namespace TvPlugin
             GUIPropertyManager.SetProperty("#selectedthumb", pItem.ThumbnailImage);
           }
         }
-        
+        if (!pItem.IsFolder)
+        {
+          TimeSpan duration1 = (rec.EndTime - rec.StartTime);
+
+          if (duration1.TotalSeconds > 0)
+          {
+            int percentWatched = (int)Math.Ceiling((rec.StopTime / duration1.TotalSeconds) * 100);
+
+            GUIPropertyManager.SetProperty("#watchedpercent", percentWatched.ToString());
+          } else
+          {
+            GUIPropertyManager.SetProperty("#watchedpercent", "0");
+          }
+
+          GUIPropertyManager.SetProperty("#watchedcount", rec.TimesWatched.ToString());
+
+          if (rec.TimesWatched > 0)
+          {
+            GUIPropertyManager.SetProperty("#iswatched", "yes");
+          }
+          else
+          {
+            GUIPropertyManager.SetProperty("#iswatched", "no");
+          }
+
+        }
+        else
+        {
+          GUIPropertyManager.SetProperty("#iswatched", String.Empty);
+          GUIPropertyManager.SetProperty("#watchedpercent", String.Empty);
+          GUIPropertyManager.SetProperty("#watchedcount", String.Empty);
+        }
       }
       catch (Exception ex)
       {
